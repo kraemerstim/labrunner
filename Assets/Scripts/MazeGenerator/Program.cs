@@ -10,8 +10,7 @@ namespace MazeGenerator
             var labyrinth = new Labyrinth();
             var stopwatch = new Stopwatch();
             stopwatch.Start();
-            labyrinth.Init(30, 30);
-            labyrinth.GenerateMaze(124,0);
+            labyrinth.Generate(30, 124, 0);
             stopwatch.Stop();
             Console.WriteLine($"time needed: {stopwatch.Elapsed:g}");
         }

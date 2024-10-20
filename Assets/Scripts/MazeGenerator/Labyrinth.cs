@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
 using Random = System.Random;
 
 namespace MazeGenerator
@@ -9,32 +8,49 @@ namespace MazeGenerator
     {
         private MazeHexagon[,] _labyrinth;
         private MazeTransition.MazeTransitionCollection _transitions;
+        private Random _random;
+        private MazeHexagon _startHexagon;
 
         public MazeHexagon GetMazeHexagon(int x, int y)
         {
             return _labyrinth[x, y];
         }
 
-        private List<MazeTransition> ShuffleList(List<MazeTransition> inputList, int seed)
+        public MazeHexagon GetStartHexagon()
+        {
+            return _startHexagon;
+        }
+
+        public void Generate(int size, int seed, int loopPercentage)
+        {
+            _labyrinth = new MazeHexagon[size, size];
+            _transitions = new MazeTransition.MazeTransitionCollection();
+            _random = new Random(seed);
+
+            InitLabyrinth();
+            GenerateMaze(loopPercentage);
+            SelectStartAndFinish();
+        }
+
+        private List<MazeTransition> ShuffleList(List<MazeTransition> inputList)
         {
             var inputListCount = inputList.Count;
-            var random = new Random(seed);
             var tempList = new List<MazeTransition>();
             tempList.AddRange(inputList);
 
             for (var i = 0; i < inputListCount; i++)
             {
-                var r = random.Next(i, tempList.Count);
+                var r = _random.Next(i, tempList.Count);
                 (tempList[i], tempList[r]) = (tempList[r], tempList[i]);
             }
 
             return tempList;
         }
 
-        public void Init(int width, int height)
+        private void InitLabyrinth()
         {
-            _labyrinth = new MazeHexagon[width, height];
-            _transitions = new MazeTransition.MazeTransitionCollection();
+            var height = _labyrinth.GetLength(1);
+            var width = _labyrinth.GetLength(0);
             for (var y = 0; y < height; y++)
             {
                 for (var x = 0; x < width; x++)
@@ -78,21 +94,10 @@ namespace MazeGenerator
             }
         }
 
-        public void Print()
-        {
-            for (var y = 0; y < _labyrinth.GetLength(1); y++)
-            {
-                for (var x = 0; x < _labyrinth.GetLength(0); x++)
-                {
-                    Debug.Log(_labyrinth[x, y].Print());
-                }
-            }
-        }
-
-        public void GenerateMaze(int seed, int loopPercentage)
+        private void GenerateMaze(int loopPercentage)
         {
             //generate transition set
-            var transitionList = ShuffleList(_transitions.GetTransitions().ToList(), seed);
+            var transitionList = ShuffleList(_transitions.GetTransitions().ToList());
             var disposableTransitions = new List<MazeTransition>();
             foreach (var transition in transitionList)
             {
@@ -106,6 +111,14 @@ namespace MazeGenerator
             {
                 disposableTransitions[i].Activated = true;
             }
+        }
+
+        private void SelectStartAndFinish()
+        {
+            //Select Start Tile
+            _startHexagon = _labyrinth[_random.Next(_labyrinth.GetLength(0)), _random.Next(_labyrinth.GetLength(1))];
+            
+            //Todo select finish
         }
     }
 }

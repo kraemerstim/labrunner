@@ -9,6 +9,10 @@ public class Player : MonoBehaviour
     private const float PLAYER_RADIUS = .7f;
     private const float PLAYER_HEIGHT = 2f;
 
+    public void SetGameInput(GameInput gameInput)
+    {
+        this.gameInput = gameInput;
+    }
     private void Update()
     {
         HandleMovement();

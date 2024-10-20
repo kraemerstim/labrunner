@@ -20,7 +20,6 @@ public class MazeTile : MonoBehaviour
         var i = 0;
         foreach (var transition in hexagon.MazeTransitions)
         {
-            Debug.Log(transition);
             if (transition is {Activated: true})
             {
                 Hide(i);
