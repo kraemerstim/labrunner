@@ -730,11 +730,10 @@ MonoBehaviour:
   player: {fileID: 953875958}
   tileOffsetY: 17.4
   tileOffsetX: 15.06
-  gameInput: {fileID: 991815479}
-  size: 4
-  seed: 9
+  size: 20
+  seed: 116
   loopPercentage: 10
-  initTimeMax: 0.05
+  initTimeMax: 0.1
 --- !u!4 &943312929
 Transform:
   m_ObjectHideFlags: 0

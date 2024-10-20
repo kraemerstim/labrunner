@@ -5,7 +5,8 @@ namespace MazeGenerator
 {
     public class MazeHexagon
     {
-        public readonly MazeTransition[] MazeTransitions = new MazeTransition[6];
+        public readonly MazeTransition[] MazeTransitions;
+        public bool IsFinish;
         public (int x, int y) MazePosition { get; private set; }
 
         public void AddMazeTransition(int direction, MazeTransition mazeTransition)
@@ -16,6 +17,8 @@ namespace MazeGenerator
         public MazeHexagon(int x, int y)
         {
             MazePosition = (x,y);
+            MazeTransitions = new MazeTransition[6];
+            IsFinish = false;
         }
         
         public bool CheckConnectivityTo(MazeHexagon hex2)

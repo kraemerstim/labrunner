@@ -11,6 +11,7 @@ public class MazeTile : MonoBehaviour
     [SerializeField] private GameObject door3;
     [SerializeField] private GameObject door4;
     [SerializeField] private GameObject door5;
+    [SerializeField] private GameObject goal;
     
     private MazeHexagon _hexagon;
     
@@ -30,6 +31,7 @@ public class MazeTile : MonoBehaviour
             }
             i++;
         }
+        goal.SetActive(hexagon.IsFinish);
     }
 
     public MazeHexagon GetHexagon()

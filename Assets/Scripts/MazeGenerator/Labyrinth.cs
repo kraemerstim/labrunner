@@ -118,7 +118,8 @@ namespace MazeGenerator
             //Select Start Tile
             _startHexagon = _labyrinth[_random.Next(_labyrinth.GetLength(0)), _random.Next(_labyrinth.GetLength(1))];
             
-            //Todo select finish
+            //Todo select finish (correctly)
+            _labyrinth[_random.Next(_labyrinth.GetLength(0)), _random.Next(_labyrinth.GetLength(1))].IsFinish = true;
         }
     }
 }

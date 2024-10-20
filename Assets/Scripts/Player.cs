@@ -1,33 +1,51 @@
+using System;
+using MazeGenerator;
 using UnityEngine;
 
 public class Player : MonoBehaviour
 {
+    public class NewHexEventArgs
+    {
+        public MazeHexagon Hexagon;
+    }
+
     [SerializeField] private float moveSpeed = 20f;
     [SerializeField] private GameInput gameInput;
     [SerializeField] private LayerMask collisionLayerMask;
     [SerializeField] private LayerMask triggerLayerMask;
+    [SerializeField] private LayerMask goalLayerMask;
     private const float PLAYER_RADIUS = .7f;
     private const float PLAYER_HEIGHT = 2f;
+    private Collider _currentCollider;
+    
 
-    public void SetGameInput(GameInput gameInput)
-    {
-        this.gameInput = gameInput;
-    }
+    public event EventHandler<NewHexEventArgs> OnMoveToNewHex;
+    public event EventHandler OnWin;
     private void Update()
     {
         HandleMovement();
         HandleTrigger();
+        HandleGoal();
     }
 
     private void HandleTrigger()
     {
         var overlapBox = Physics.OverlapBox(transform.position, transform.localScale * 2, Quaternion.identity,
             triggerLayerMask);
-
-        if (overlapBox.Length > 0)
-        {
-            Debug.Log(overlapBox[0].gameObject.GetComponentInParent<MazeTile>()?.GetHexagon().MazePosition);
-        }
+        
+        if (overlapBox.Length <= 0 || overlapBox[0] == _currentCollider) return;
+        Debug.Log(overlapBox[0].gameObject.GetComponentInParent<MazeTile>().GetHexagon());
+        _currentCollider = overlapBox[0];
+        OnMoveToNewHex?.Invoke(this, new NewHexEventArgs { Hexagon = overlapBox[0].gameObject.GetComponentInParent<MazeTile>()?.GetHexagon() });
+    }
+    
+    private void HandleGoal()
+    {
+        var overlapBox = Physics.OverlapBox(transform.position, transform.localScale * 2, Quaternion.identity,
+            goalLayerMask);
+        
+        if (overlapBox.Length <= 0) return;
+        OnWin?.Invoke(this, EventArgs.Empty);
     }
 
     private void HandleMovement()
