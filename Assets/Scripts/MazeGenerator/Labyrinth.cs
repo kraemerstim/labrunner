@@ -25,7 +25,7 @@ namespace MazeGenerator
         {
             _labyrinth = new MazeHexagon[size, size];
             _transitions = new MazeTransition.MazeTransitionCollection();
-            _random = new Random(seed);
+            _random = seed == -1 ? new Random() : new Random(seed);
 
             InitLabyrinth();
             GenerateMaze(loopPercentage);
@@ -118,8 +118,28 @@ namespace MazeGenerator
             //Select Start Tile
             _startHexagon = _labyrinth[_random.Next(_labyrinth.GetLength(0)), _random.Next(_labyrinth.GetLength(1))];
             
-            //Todo select finish (correctly)
-            _labyrinth[_random.Next(_labyrinth.GetLength(0)), _random.Next(_labyrinth.GetLength(1))].IsFinish = true;
+            //Select Finish Tile
+            var hexesToCheck = new Queue<MazeHexagon>();
+            var hexesChecked = new List<MazeHexagon>();
+            
+            hexesToCheck.Enqueue(_startHexagon);
+            
+            while (hexesToCheck.TryDequeue(out var mazeHexagon))
+            {
+                hexesChecked.Add(mazeHexagon);
+                foreach (var transition in mazeHexagon.MazeTransitions)
+                {
+                    if (transition == null || !transition.Activated || hexesChecked.Contains(transition.GetOtherNode(mazeHexagon)))
+                    {
+                        continue;
+                    }
+
+                    var otherNode = transition.GetOtherNode(mazeHexagon);
+                    hexesToCheck.Enqueue(otherNode);
+                }
+            }
+
+            hexesChecked.Last().IsFinish = true;
         }
     }
 }

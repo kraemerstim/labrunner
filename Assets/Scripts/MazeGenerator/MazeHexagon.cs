@@ -67,10 +67,5 @@ namespace MazeGenerator
 
             return false;
         }
-
-        public string Print()
-        {
-            return MazeTransitions.Aggregate("", (current, transition) => current + MazePosition + (transition is {Activated: true} ? "+" : "-"));
-        }
     }
 }

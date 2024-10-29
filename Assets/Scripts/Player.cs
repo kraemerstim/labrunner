@@ -24,17 +24,16 @@ public class Player : MonoBehaviour
     private void Update()
     {
         HandleMovement();
-        HandleTrigger();
+        HandleNewHexagonTrigger();
         HandleGoal();
     }
 
-    private void HandleTrigger()
+    private void HandleNewHexagonTrigger()
     {
         var overlapBox = Physics.OverlapBox(transform.position, transform.localScale * 2, Quaternion.identity,
             triggerLayerMask);
         
         if (overlapBox.Length <= 0 || overlapBox[0] == _currentCollider) return;
-        Debug.Log(overlapBox[0].gameObject.GetComponentInParent<MazeTile>().GetHexagon());
         _currentCollider = overlapBox[0];
         OnMoveToNewHex?.Invoke(this, new NewHexEventArgs { Hexagon = overlapBox[0].gameObject.GetComponentInParent<MazeTile>()?.GetHexagon() });
     }

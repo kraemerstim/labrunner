@@ -1,8 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using DefaultNamespace;
 using MazeGenerator;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.Serialization;
 using Debug = UnityEngine.Debug;
 
 public class GameStart : MonoBehaviour
@@ -10,12 +13,7 @@ public class GameStart : MonoBehaviour
     // Start is called before the first frame update
     [SerializeField] private MazeTile mazeTilePrefab;
     [SerializeField] private Player player;
-    [SerializeField] private float tileOffsetY = 17.4f;
-    [SerializeField] private float tileOffsetX = 15.06f;
-    [SerializeField] private int size = 4;
-    [SerializeField] private int seed = 124;
-    [SerializeField] private int loopPercentage;
-    [SerializeField] private float initTimeMax = 0.1f;
+    [FormerlySerializedAs("config")] [SerializeField] private VisualConfig visualConfig;
 
     private MazeTile[,] _labyrinth;
     private Labyrinth _labyrinthModel;
@@ -25,16 +23,16 @@ public class GameStart : MonoBehaviour
 
     private void Start()
     {
+        player.OnWin += PlayerOnOnWin;
         _stopwatch = new Stopwatch();
         _stopwatch.Start();
         
         _labyrinthModel = new Labyrinth();
-        _labyrinthModel.Generate(size, seed, loopPercentage);
-        _labyrinth = new MazeTile[size, size];
+        _labyrinthModel.Generate(SceneData.size, SceneData.useRandomSeed ? -1 : SceneData.seed, SceneData.loopPercentage);
+        _labyrinth = new MazeTile[SceneData.size, SceneData.size];
         _hexagonsToPlace = new Queue<MazeHexagon>();
 
         player.OnMoveToNewHex += PlayerOnOnMoveToNewHex;
-        player.OnWin += PlayerOnOnWin;
         
         var mazeHexagon = _labyrinthModel.GetStartHexagon();
         var mazeTile = Instantiate(mazeTilePrefab,
@@ -43,11 +41,10 @@ public class GameStart : MonoBehaviour
         _labyrinth[mazeHexagon.MazePosition.x, mazeHexagon.MazePosition.y] = mazeTile;
         player.transform.position = mazeTile.transform.position;
     }
-
+    
     private void PlayerOnOnWin(object sender, EventArgs e)
     {
-        _stopwatch.Stop();
-        Debug.Log(_stopwatch.Elapsed);
+        SceneManager.LoadScene(2);
     }
 
     private void PlayerOnOnMoveToNewHex(object sender, Player.NewHexEventArgs e)
@@ -71,7 +68,7 @@ public class GameStart : MonoBehaviour
         }
 
         _hexPlacementTimer += Time.deltaTime;
-        if (_hexPlacementTimer <= initTimeMax)
+        if (_hexPlacementTimer <= visualConfig.initTimeMax)
         {
             return;
         }
@@ -88,11 +85,11 @@ public class GameStart : MonoBehaviour
 
     private Vector3 CalculateTilePosition(int x, int y)
     {
-        var xPosition = x * tileOffsetX;
-        var yPosition = y * tileOffsetY;
+        var xPosition = x * visualConfig.tileOffsetX;
+        var yPosition = y * visualConfig.tileOffsetY;
         if (x % 2 != 0)
         {
-            yPosition += tileOffsetY / 2;
+            yPosition += visualConfig.tileOffsetY / 2;
         }
 
         return new Vector3(xPosition, 0, yPosition);
