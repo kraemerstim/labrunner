@@ -10,13 +10,15 @@ public class MainGameUI : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI timerText;
     [SerializeField] private Button restartButton;
+    [SerializeField] private Button menuButton;
     
     
     private float _gameTimer = 0f;
     // Start is called before the first frame update
     void Awake()
     {
-        restartButton.onClick.AddListener(() => SceneManager.LoadScene(0));
+        restartButton.onClick.AddListener(() => SceneManager.LoadScene(1));
+        menuButton.onClick.AddListener(() => SceneManager.LoadScene(0));
     }
     
     // Update is called once per frame
