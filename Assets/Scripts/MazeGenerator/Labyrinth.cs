@@ -21,30 +21,15 @@ namespace MazeGenerator
             return _startHexagon;
         }
 
-        public void Generate(int size, int seed, int loopPercentage)
+        public void Generate(int size, Random random)
         {
             _labyrinth = new MazeHexagon[size, size];
             _transitions = new MazeTransition.MazeTransitionCollection();
-            _random = seed == -1 ? new Random() : new Random(seed);
+            _random = random;
 
             InitLabyrinth();
-            GenerateMaze(loopPercentage);
+            GenerateMaze();
             SelectStartAndFinish();
-        }
-
-        private List<MazeTransition> ShuffleList(List<MazeTransition> inputList)
-        {
-            var inputListCount = inputList.Count;
-            var tempList = new List<MazeTransition>();
-            tempList.AddRange(inputList);
-
-            for (var i = 0; i < inputListCount; i++)
-            {
-                var r = _random.Next(i, tempList.Count);
-                (tempList[i], tempList[r]) = (tempList[r], tempList[i]);
-            }
-
-            return tempList;
         }
 
         private void InitLabyrinth()
@@ -94,22 +79,35 @@ namespace MazeGenerator
             }
         }
 
-        private void GenerateMaze(int loopPercentage)
+        private void GenerateMaze()
         {
             //generate transition set
-            var transitionList = ShuffleList(_transitions.GetTransitions().ToList());
-            var disposableTransitions = new List<MazeTransition>();
+            var transitionList = LabUtil.ShuffleList(_transitions.GetTransitions().ToList(), _random);
             foreach (var transition in transitionList)
             {
                 transition.Activated = false;
-                var checkConnectivityTo2 = transition.Node1.CheckConnectivityTo2(transition.Node2);
-                transition.Activated = !checkConnectivityTo2;
-                if (checkConnectivityTo2) disposableTransitions.Add(transition);
+                transition.Activated = !transition.Node1.CheckConnectivityTo2(transition.Node2);
             }
 
-            for (var i = 0; i < (int) (disposableTransitions.Count * (loopPercentage / 100.0)); i++)
+            var hexagonList = new List<MazeHexagon>();
+            var height = _labyrinth.GetLength(1);
+            var width = _labyrinth.GetLength(0);
+            for (var y = 0; y < height; y++)
             {
-                disposableTransitions[i].Activated = true;
+                for (var x = 0; x < width; x++)
+                {
+                    hexagonList.Add(_labyrinth[x, y]);
+                }
+            }
+            
+            hexagonList = LabUtil.ShuffleList(hexagonList,_random);
+
+            foreach (var hexagon in hexagonList)
+            {
+                if (hexagon.GetHexagonOpenings() < 2)
+                {
+                    hexagon.OpenRandomOpening(_random);
+                }
             }
         }
 

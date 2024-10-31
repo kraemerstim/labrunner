@@ -7,13 +7,14 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
 using Debug = UnityEngine.Debug;
+using Random = System.Random;
 
 public class GameStart : MonoBehaviour
 {
     // Start is called before the first frame update
     [SerializeField] private MazeTile mazeTilePrefab;
     [SerializeField] private Player player;
-    [FormerlySerializedAs("config")] [SerializeField] private VisualConfig visualConfig;
+    [SerializeField] private VisualConfig visualConfig;
 
     private MazeTile[,] _labyrinth;
     private Labyrinth _labyrinthModel;
@@ -28,7 +29,7 @@ public class GameStart : MonoBehaviour
         _stopwatch.Start();
         
         _labyrinthModel = new Labyrinth();
-        _labyrinthModel.Generate(SceneData.size, SceneData.useRandomSeed ? -1 : SceneData.seed, SceneData.loopPercentage);
+        _labyrinthModel.Generate(SceneData.size, SceneData.useRandomSeed ? new Random() : new Random(SceneData.seed));
         _labyrinth = new MazeTile[SceneData.size, SceneData.size];
         _hexagonsToPlace = new Queue<MazeHexagon>();
 

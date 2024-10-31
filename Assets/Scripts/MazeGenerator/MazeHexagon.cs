@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace MazeGenerator
@@ -12,6 +13,23 @@ namespace MazeGenerator
         public void AddMazeTransition(int direction, MazeTransition mazeTransition)
         {
             MazeTransitions[direction] = mazeTransition;
+        }
+
+        public int GetHexagonOpenings()
+        {
+            return MazeTransitions.Count(mazeTransition => mazeTransition != null && mazeTransition.Activated);
+        }
+
+        public void OpenRandomOpening(Random random)
+        {
+            foreach (var transition in LabUtil.ShuffleList(MazeTransitions.ToList(), random))
+            {
+                if (transition != null && !transition.Activated)
+                {
+                    transition.Activated = true;
+                    return;
+                }
+            }
         }
 
         public MazeHexagon(int x, int y)

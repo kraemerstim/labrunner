@@ -47,6 +47,7 @@
   <ItemGroup>
     <Compile Include="Assets\Scripts\MainMenuUI.cs" />
     <Compile Include="Assets\Scripts\SceneData.cs" />
+    <Compile Include="Assets\Scripts\MazeGenerator\LabUtil.cs" />
     <Compile Include="Assets\Scripts\MazeGenerator\MazeHexagon.cs" />
     <Compile Include="Assets\Scripts\EndScreenUI.cs" />
     <Compile Include="Assets\Scripts\MazeGenerator\Labyrinth.cs" />
