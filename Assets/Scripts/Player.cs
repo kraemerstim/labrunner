@@ -17,10 +17,11 @@ public class Player : MonoBehaviour
     private const float PLAYER_RADIUS = .7f;
     private const float PLAYER_HEIGHT = 2f;
     private Collider _currentCollider;
-    
+
 
     public event EventHandler<NewHexEventArgs> OnMoveToNewHex;
     public event EventHandler OnWin;
+
     private void Update()
     {
         HandleMovement();
@@ -32,17 +33,18 @@ public class Player : MonoBehaviour
     {
         var overlapBox = Physics.OverlapBox(transform.position, transform.localScale * 2, Quaternion.identity,
             triggerLayerMask);
-        
+
         if (overlapBox.Length <= 0 || overlapBox[0] == _currentCollider) return;
         _currentCollider = overlapBox[0];
-        OnMoveToNewHex?.Invoke(this, new NewHexEventArgs { Hexagon = overlapBox[0].gameObject.GetComponentInParent<MazeTile>()?.GetHexagon() });
+        OnMoveToNewHex?.Invoke(this,
+            new NewHexEventArgs {Hexagon = overlapBox[0].gameObject.GetComponentInParent<MazeTile>()?.GetHexagon()});
     }
-    
+
     private void HandleGoal()
     {
         var overlapBox = Physics.OverlapBox(transform.position, transform.localScale * 2, Quaternion.identity,
             goalLayerMask);
-        
+
         if (overlapBox.Length <= 0) return;
         OnWin?.Invoke(this, EventArgs.Empty);
     }

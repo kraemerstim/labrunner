@@ -5,8 +5,6 @@ using DefaultNamespace;
 using MazeGenerator;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.Serialization;
-using Debug = UnityEngine.Debug;
 using Random = System.Random;
 
 public class GameStart : MonoBehaviour
@@ -16,7 +14,7 @@ public class GameStart : MonoBehaviour
     [SerializeField] private Player player;
     [SerializeField] private VisualConfig visualConfig;
 
-    private MazeTile[,] _labyrinth;
+    private Dictionary<(int x, int y), MazeTile> _labyrinth;
     private Labyrinth _labyrinthModel;
     private float _hexPlacementTimer;
     private Queue<MazeHexagon> _hexagonsToPlace;
@@ -27,22 +25,19 @@ public class GameStart : MonoBehaviour
         player.OnWin += PlayerOnOnWin;
         _stopwatch = new Stopwatch();
         _stopwatch.Start();
-        
+
         _labyrinthModel = new Labyrinth();
         _labyrinthModel.Generate(SceneData.size, SceneData.useRandomSeed ? new Random() : new Random(SceneData.seed));
-        _labyrinth = new MazeTile[SceneData.size, SceneData.size];
+        _labyrinth = new Dictionary<(int x, int y), MazeTile>();
         _hexagonsToPlace = new Queue<MazeHexagon>();
 
         player.OnMoveToNewHex += PlayerOnOnMoveToNewHex;
-        
+
         var mazeHexagon = _labyrinthModel.GetStartHexagon();
-        var mazeTile = Instantiate(mazeTilePrefab,
-            CalculateTilePosition(mazeHexagon.MazePosition.x, mazeHexagon.MazePosition.y), Quaternion.identity);
-        mazeTile.SetMazeHexagon(mazeHexagon);
-        _labyrinth[mazeHexagon.MazePosition.x, mazeHexagon.MazePosition.y] = mazeTile;
+        var mazeTile = CreateMazeTile(mazeHexagon);
         player.transform.position = mazeTile.transform.position;
     }
-    
+
     private void PlayerOnOnWin(object sender, EventArgs e)
     {
         SceneManager.LoadScene(2);
@@ -56,7 +51,7 @@ public class GameStart : MonoBehaviour
 
             var hexagonToAdd = mazeTransition.GetOtherNode(e.Hexagon);
             if (_hexagonsToPlace.Contains(hexagonToAdd) ||
-                _labyrinth[hexagonToAdd.MazePosition.x, hexagonToAdd.MazePosition.y] != null) continue;
+                _labyrinth.ContainsKey((hexagonToAdd.MazePosition.x, hexagonToAdd.MazePosition.y))) continue;
             _hexagonsToPlace.Enqueue(hexagonToAdd);
         }
     }
@@ -75,12 +70,7 @@ public class GameStart : MonoBehaviour
         }
 
         var hexagonToPlace = _hexagonsToPlace.Dequeue();
-        var mazePositionX = hexagonToPlace.MazePosition.x;
-        var mazePositionY = hexagonToPlace.MazePosition.y;
-        var mazeTile = Instantiate(mazeTilePrefab,
-            CalculateTilePosition(mazePositionX, mazePositionY), Quaternion.identity);
-        mazeTile.SetMazeHexagon(hexagonToPlace);
-        _labyrinth[mazePositionX, mazePositionY] = mazeTile;
+        CreateMazeTile(hexagonToPlace);
         _hexPlacementTimer = 0;
     }
 
@@ -94,5 +84,16 @@ public class GameStart : MonoBehaviour
         }
 
         return new Vector3(xPosition, 0, yPosition);
+    }
+
+    private MazeTile CreateMazeTile(MazeHexagon hexagon)
+    {
+        var mazePositionX = hexagon.MazePosition.x;
+        var mazePositionY = hexagon.MazePosition.y;
+        var mazeTile = Instantiate(mazeTilePrefab,
+            CalculateTilePosition(mazePositionX, mazePositionY), Quaternion.identity);
+        mazeTile.SetMazeHexagon(hexagon);
+        _labyrinth.Add((mazePositionX, mazePositionY), mazeTile);
+        return mazeTile;
     }
 }

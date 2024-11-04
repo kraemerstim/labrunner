@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using MazeGenerator;
 using UnityEngine;
 
@@ -12,9 +10,9 @@ public class MazeTile : MonoBehaviour
     [SerializeField] private GameObject door4;
     [SerializeField] private GameObject door5;
     [SerializeField] private GameObject goal;
-    
+
     private MazeHexagon _hexagon;
-    
+
     public void SetMazeHexagon(MazeHexagon hexagon)
     {
         _hexagon = hexagon;
@@ -29,8 +27,10 @@ public class MazeTile : MonoBehaviour
             {
                 Show(i);
             }
+
             i++;
         }
+
         goal.SetActive(hexagon.IsFinish);
     }
 
@@ -38,7 +38,7 @@ public class MazeTile : MonoBehaviour
     {
         return _hexagon;
     }
-    
+
     private GameObject GetDoor(int doorNo)
     {
         return doorNo switch

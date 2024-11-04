@@ -6,15 +6,10 @@ namespace MazeGenerator
 {
     public class Labyrinth
     {
-        private MazeHexagon[,] _labyrinth;
-        private MazeTransition.MazeTransitionCollection _transitions;
+        private Dictionary<(int x, int y), MazeHexagon> _hexagons;
+        private HashSet<MazeTransition> _transitions;
         private Random _random;
         private MazeHexagon _startHexagon;
-
-        public MazeHexagon GetMazeHexagon(int x, int y)
-        {
-            return _labyrinth[x, y];
-        }
 
         public MazeHexagon GetStartHexagon()
         {
@@ -23,111 +18,98 @@ namespace MazeGenerator
 
         public void Generate(int size, Random random)
         {
-            _labyrinth = new MazeHexagon[size, size];
-            _transitions = new MazeTransition.MazeTransitionCollection();
+            _hexagons = new Dictionary<(int x, int y), MazeHexagon>();
+            _transitions = new HashSet<MazeTransition>();
             _random = random;
 
-            InitLabyrinth();
+            InitLabyrinth(size);
             GenerateMaze();
             SelectStartAndFinish();
         }
 
-        private void InitLabyrinth()
+        private void InitLabyrinth(int size)
         {
-            var height = _labyrinth.GetLength(1);
-            var width = _labyrinth.GetLength(0);
-            for (var y = 0; y < height; y++)
+            for (var y = 0; y < size; y++)
             {
-                for (var x = 0; x < width; x++)
+                for (var x = 0; x < size; x++)
                 {
                     var tempHexagon = new MazeHexagon(x, y);
                     if (x > 0)
                     {
-                        var target = _labyrinth[x - 1, y];
-                        if (x % 2 == 1)
-                        {
-                            _transitions.CreateTransition(tempHexagon, 4, target, 1);
-                        }
-                        else
-                        {
-                            _transitions.CreateTransition(tempHexagon, 5, target, 2);
-                        }
+                        var target = _hexagons[(x - 1, y)];
+                        CreateTransition(tempHexagon, x % 2 == 1 ? 4 : 5, target);
                     }
 
                     if (y > 0)
                     {
-                        var target = _labyrinth[x, y - 1];
-                        _transitions.CreateTransition(tempHexagon, 3, target, 0);
+                        var target = _hexagons[(x, y - 1)];
+                        CreateTransition(tempHexagon, 3, target);
                         if (x % 2 == 0)
                         {
                             if (x > 0)
                             {
-                                target = _labyrinth[x - 1, y - 1];
-                                _transitions.CreateTransition(tempHexagon, 4, target, 1);
+                                target = _hexagons[(x - 1, y - 1)];
+                                CreateTransition(tempHexagon, 4, target);
                             }
 
-                            if (x < width - 1)
+                            if (x < size - 1)
                             {
-                                target = _labyrinth[x + 1, y - 1];
-                                _transitions.CreateTransition(tempHexagon, 2, target, 5);
+                                target = _hexagons[(x + 1, y - 1)];
+                                CreateTransition(tempHexagon, 2, target);
                             }
                         }
                     }
 
-                    _labyrinth[x, y] = tempHexagon;
+                    _hexagons.Add((x, y), tempHexagon);
                 }
             }
+        }
+
+        public MazeTransition CreateTransition(MazeHexagon node1, int directionTo, MazeHexagon node2)
+        {
+            var mazeTransition = new MazeTransition(node1, node2);
+            _transitions.Add(mazeTransition);
+            node1.AddMazeTransition(directionTo, mazeTransition);
+            node2.AddMazeTransition((directionTo + 3) % 6, mazeTransition);
+            return mazeTransition;
         }
 
         private void GenerateMaze()
         {
             //generate transition set
-            var transitionList = LabUtil.ShuffleList(_transitions.GetTransitions().ToList(), _random);
+            var transitionList = LabUtil.ShuffleList(_transitions.ToList(), _random);
             foreach (var transition in transitionList)
             {
                 transition.Activated = false;
-                transition.Activated = !transition.Node1.CheckConnectivityTo2(transition.Node2);
+                transition.Activated = !transition.Node1.CheckConnectivityTo(transition.Node2);
             }
 
-            var hexagonList = new List<MazeHexagon>();
-            var height = _labyrinth.GetLength(1);
-            var width = _labyrinth.GetLength(0);
-            for (var y = 0; y < height; y++)
-            {
-                for (var x = 0; x < width; x++)
-                {
-                    hexagonList.Add(_labyrinth[x, y]);
-                }
-            }
-            
-            hexagonList = LabUtil.ShuffleList(hexagonList,_random);
+            var hexagonList = LabUtil.ShuffleList(_hexagons.Values.ToList(), _random);
 
-            foreach (var hexagon in hexagonList)
+            foreach (var hexagon in hexagonList.Where(hexagon => hexagon.GetHexagonOpenings() < 2))
             {
-                if (hexagon.GetHexagonOpenings() < 2)
-                {
-                    hexagon.OpenRandomOpening(_random);
-                }
+                hexagon.OpenRandomOpening(_random);
             }
         }
 
         private void SelectStartAndFinish()
         {
             //Select Start Tile
-            _startHexagon = _labyrinth[_random.Next(_labyrinth.GetLength(0)), _random.Next(_labyrinth.GetLength(1))];
-            
+            _startHexagon = _hexagons.Values.ToList()[_random.Next(_hexagons.Count)];
+
             //Select Finish Tile
             var hexesToCheck = new Queue<MazeHexagon>();
             var hexesChecked = new List<MazeHexagon>();
-            
+
             hexesToCheck.Enqueue(_startHexagon);
-            
+
             while (hexesToCheck.TryDequeue(out var mazeHexagon))
             {
                 hexesChecked.Add(mazeHexagon);
                 foreach (var transition in mazeHexagon.MazeTransitions)
                 {
-                    if (transition == null || !transition.Activated || hexesChecked.Contains(transition.GetOtherNode(mazeHexagon)))
+                    if (transition is not {Activated: true} ||
+                        hexesChecked.Contains(transition.GetOtherNode(mazeHexagon)))
                     {
                         continue;
                     }
