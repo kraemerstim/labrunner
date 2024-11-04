@@ -507,7 +507,7 @@ GameObject:
   - component: {fileID: 320978932}
   - component: {fileID: 320978931}
   m_Layer: 5
-  m_Name: RawImage
+  m_Name: BackgroundImage
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -527,11 +527,11 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1913892504}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -26, y: -388}
-  m_SizeDelta: {x: 100, y: 100}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_AnchorMin: {x: 1, y: 0}
+  m_AnchorMax: {x: 1, y: 0}
+  m_AnchoredPosition: {x: -959, y: 538}
+  m_SizeDelta: {x: 101.4797, y: 57.09}
+  m_Pivot: {x: 0, y: 1}
 --- !u!114 &320978931
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1570,8 +1570,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -24, y: 7}
-  m_SizeDelta: {x: 118, y: -58}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1913892505
 MonoBehaviour:
@@ -1747,7 +1747,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: -563.5958, y: -542}
+  m_AnchoredPosition: {x: -563.5958, y: -451}
   m_SizeDelta: {x: 457.1909, y: 69.1355}
   m_Pivot: {x: 0, y: 0}
 --- !u!114 &2110829640
