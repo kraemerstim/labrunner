@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using MazeGenerator.Labyrinth;
 
 namespace MazeGenerator
 {
     public class MazeHexagon
     {
         public readonly MazeTransition[] MazeTransitions;
-        public bool IsFinish;
         public (int x, int y) MazePosition { get; private set; }
 
         public void AddMazeTransition(int direction, MazeTransition mazeTransition)
@@ -31,7 +31,6 @@ namespace MazeGenerator
         {
             MazePosition = (x, y);
             MazeTransitions = new MazeTransition[6];
-            IsFinish = false;
         }
 
         public bool CheckConnectivityTo(MazeHexagon hex2)

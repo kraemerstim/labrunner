@@ -1,33 +1,35 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Random = System.Random;
 
-namespace MazeGenerator
+namespace MazeGenerator.Labyrinth
 {
-    public class Labyrinth
+    public class SquareLabyrinth : LabyrinthBase
     {
-        private Dictionary<(int x, int y), MazeHexagon> _hexagons;
-        private HashSet<MazeTransition> _transitions;
-        private Random _random;
         private MazeHexagon _startHexagon;
+        private MazeHexagon _endHexagon;
+
+        public SquareLabyrinth(LabOptions options) : base(options)
+        {
+        }
 
         public MazeHexagon GetStartHexagon()
         {
             return _startHexagon;
         }
 
-        public void Generate(int size, Random random)
+        public MazeHexagon GetEndHexagon()
         {
-            _hexagons = new Dictionary<(int x, int y), MazeHexagon>();
-            _transitions = new HashSet<MazeTransition>();
-            _random = random;
+            return _endHexagon;
+        }
 
-            InitLabyrinth(size);
+        public void Generate()
+        {
+            InitLabyrinth(_options.Size);
             GenerateMaze();
             SelectStartAndFinish();
         }
 
-        private void InitLabyrinth(int size)
+        protected override void InitLabyrinth(int size)
         {
             for (var y = 0; y < size; y++)
             {
@@ -65,16 +67,7 @@ namespace MazeGenerator
             }
         }
 
-        public MazeTransition CreateTransition(MazeHexagon node1, int directionTo, MazeHexagon node2)
-        {
-            var mazeTransition = new MazeTransition(node1, node2);
-            _transitions.Add(mazeTransition);
-            node1.AddMazeTransition(directionTo, mazeTransition);
-            node2.AddMazeTransition((directionTo + 3) % 6, mazeTransition);
-            return mazeTransition;
-        }
-
-        private void GenerateMaze()
+        protected override void GenerateMaze()
         {
             //generate transition set
             var transitionList = LabUtil.ShuffleList(_transitions.ToList(), _random);
@@ -119,7 +112,7 @@ namespace MazeGenerator
                 }
             }
 
-            hexesChecked.Last().IsFinish = true;
+            _endHexagon = hexesChecked.Last();
         }
     }
 }

@@ -47,17 +47,18 @@
   <ItemGroup>
     <Compile Include="Assets\Scripts\MainMenuUI.cs" />
     <Compile Include="Assets\Scripts\SceneData.cs" />
-    <Compile Include="Assets\Scripts\MazeGenerator\LabUtil.cs" />
     <Compile Include="Assets\Scripts\MazeGenerator\MazeHexagon.cs" />
     <Compile Include="Assets\Scripts\EndScreenUI.cs" />
-    <Compile Include="Assets\Scripts\MazeGenerator\Labyrinth.cs" />
+    <Compile Include="Assets\Scripts\MazeGenerator\Labyrinth\LabyrinthBase.cs" />
     <Compile Include="Assets\Scripts\MazeGenerator\MazeTransition.cs" />
     <Compile Include="Assets\Scripts\MazeTile.cs" />
+    <Compile Include="Assets\Scripts\MazeGenerator\Labyrinth\SquareLabyrinth.cs" />
     <Compile Include="Assets\Scripts\Player.cs" />
     <Compile Include="Assets\Scripts\MazeGenerator\Program.cs" />
     <Compile Include="Assets\PlayerInputActions.cs" />
     <Compile Include="Assets\Scripts\MainGameUI.cs" />
     <Compile Include="Assets\Scripts\GameInput.cs" />
+    <Compile Include="Assets\Scripts\MazeGenerator\Labyrinth\LabUtil.cs" />
     <Compile Include="Assets\Scripts\VisualConfig.cs" />
     <Compile Include="Assets\Scripts\GameStart.cs" />
     <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />

@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using DefaultNamespace;
 using MazeGenerator;
+using MazeGenerator.Labyrinth;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using Random = System.Random;
 
 public class GameStart : MonoBehaviour
 {
@@ -15,7 +15,7 @@ public class GameStart : MonoBehaviour
     [SerializeField] private VisualConfig visualConfig;
 
     private Dictionary<(int x, int y), MazeTile> _labyrinth;
-    private Labyrinth _labyrinthModel;
+    private SquareLabyrinth _labyrinthModel;
     private float _hexPlacementTimer;
     private Queue<MazeHexagon> _hexagonsToPlace;
     private Stopwatch _stopwatch;
@@ -26,8 +26,9 @@ public class GameStart : MonoBehaviour
         _stopwatch = new Stopwatch();
         _stopwatch.Start();
 
-        _labyrinthModel = new Labyrinth();
-        _labyrinthModel.Generate(SceneData.size, SceneData.useRandomSeed ? new Random() : new Random(SceneData.seed));
+        _labyrinthModel =
+            new SquareLabyrinth(new LabyrinthBase.LabOptions(SceneData.size, SceneData.seed, SceneData.useRandomSeed));
+        _labyrinthModel.Generate();
         _labyrinth = new Dictionary<(int x, int y), MazeTile>();
         _hexagonsToPlace = new Queue<MazeHexagon>();
 
@@ -92,7 +93,7 @@ public class GameStart : MonoBehaviour
         var mazePositionY = hexagon.MazePosition.y;
         var mazeTile = Instantiate(mazeTilePrefab,
             CalculateTilePosition(mazePositionX, mazePositionY), Quaternion.identity);
-        mazeTile.SetMazeHexagon(hexagon);
+        mazeTile.SetMazeHexagon(hexagon, _labyrinthModel.GetEndHexagon().Equals(hexagon));
         _labyrinth.Add((mazePositionX, mazePositionY), mazeTile);
         return mazeTile;
     }

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace MazeGenerator
+namespace MazeGenerator.Labyrinth
 {
     public class LabUtil
     {

@@ -13,7 +13,7 @@ public class MazeTile : MonoBehaviour
 
     private MazeHexagon _hexagon;
 
-    public void SetMazeHexagon(MazeHexagon hexagon)
+    public void SetMazeHexagon(MazeHexagon hexagon, bool isFinish)
     {
         _hexagon = hexagon;
         var i = 0;
@@ -31,7 +31,7 @@ public class MazeTile : MonoBehaviour
             i++;
         }
 
-        goal.SetActive(hexagon.IsFinish);
+        goal.SetActive(isFinish);
     }
 
     public MazeHexagon GetHexagon()
