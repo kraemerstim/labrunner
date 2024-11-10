@@ -10,30 +10,30 @@ namespace MazeGenerator
         public readonly MazeTransition[] MazeTransitions;
         public (int x, int y) MazePosition { get; private set; }
 
-        public void AddMazeTransition(int direction, MazeTransition mazeTransition)
-        {
-            MazeTransitions[direction] = mazeTransition;
-        }
-
-        public int GetHexagonOpenings()
-        {
-            return MazeTransitions.Count(mazeTransition => mazeTransition != null && mazeTransition.Activated);
-        }
-
-        public void OpenRandomOpening(Random random)
-        {
-            var mazeTransition = LabUtil.ShuffleList(MazeTransitions.ToList(), random)
-                .First(transition => transition is {Activated: false});
-            mazeTransition.Activated = true;
-        }
-
         public MazeHexagon(int x, int y)
         {
             MazePosition = (x, y);
             MazeTransitions = new MazeTransition[6];
         }
 
-        public bool CheckConnectivityTo(MazeHexagon hex2)
+        public void AddMazeTransition(int direction, MazeTransition mazeTransition)
+        {
+            MazeTransitions[direction] = mazeTransition;
+        }
+
+        public int GetHexagonOpenings(Func<MazeTransition, bool> selection)
+        {
+            return MazeTransitions.Count(selection);
+        }
+
+        public void OpenRandomOpening(Random random, Func<MazeTransition, bool> selection)
+        {
+            var mazeTransition = LabUtil.ShuffleList(MazeTransitions.ToList(), random)
+                .First(selection);
+            mazeTransition.Activated = true;
+        }
+
+        public bool CheckPathTo(MazeHexagon targetHexagon)
         {
             var hexesToCheck = new Queue<MazeHexagon>();
             hexesToCheck.Enqueue(this);
@@ -51,12 +51,28 @@ namespace MazeGenerator
                     }
 
                     var otherNode = transition.GetOtherNode(mazeHexagon);
-                    if (otherNode == hex2) return true;
+                    if (otherNode == targetHexagon) return true;
                     hexesToCheck.Enqueue(otherNode);
                 }
             }
 
             return false;
+        }
+
+        public int GetRandomFreeTransitionDirection(Random random)
+        {
+            var nullTransitions = new List<int>();
+            for (var i = 0; i < MazeTransitions.Length; i++)
+            {
+                if (MazeTransitions[i] == null)
+                {
+                    nullTransitions.Add(i);
+                }
+            }
+
+            if (nullTransitions.Count == 0) return -1;
+            return LabUtil.ShuffleList(nullTransitions, random)
+                .First();
         }
     }
 }

@@ -6,6 +6,8 @@ namespace MazeGenerator
     {
         public MazeHexagon Node1 { get; set; }
         public MazeHexagon Node2 { get; set; }
+        public int NodeDirection1 { get; set; }
+        public int NodeDirection2 { get; set; }
         public bool Activated { get; set; }
 
         public MazeHexagon GetOtherNode(MazeHexagon origin)
@@ -16,10 +18,17 @@ namespace MazeGenerator
             throw new Exception("Origin not found in transition");
         }
 
-        public MazeTransition(MazeHexagon node1, MazeHexagon node2)
+        public int GetNodeDirection(MazeHexagon origin)
+        {
+            return origin == Node1 ? NodeDirection1 : NodeDirection2;
+        }
+
+        public MazeTransition(MazeHexagon node1, int nodeDirection, MazeHexagon node2)
         {
             Node1 = node1;
+            NodeDirection1 = nodeDirection;
             Node2 = node2;
+            NodeDirection2 = (nodeDirection + 3) % 6;
             Activated = true;
         }
     }

@@ -1,4 +1,5 @@
 using DefaultNamespace;
+using MazeGenerator.Labyrinth;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -15,16 +16,26 @@ public class EndScreenUI : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        var highscore = PlayerPrefs.GetFloat($"Highscore_{SceneData.size}", 0);
-        var score = SceneData.secondsPassed;
-        if (highscore == 0 || score < highscore)
+        var highscoreString =
+            $"Highscore_{SceneData.Size}_{(SceneData.LabType == LabyrinthBase.LabType.Remember ? "R" : "S")}";
+        var highscore = PlayerPrefs.GetFloat(highscoreString, 0);
+        var score = SceneData.SecondsPassed;
+        if (SceneData.Win)
         {
-            highscore = score;
-            PlayerPrefs.SetFloat($"Highscore_{SceneData.size}", highscore);
-            PlayerPrefs.Save();
+            if (highscore == 0 || score < highscore)
+            {
+                highscore = score;
+                PlayerPrefs.SetFloat(highscoreString, highscore);
+                PlayerPrefs.Save();
+            }
+
+            timeText.text = $"{score:0.00} Sekunden";
+        }
+        else
+        {
+            timeText.text = $"Niederlage!";
         }
 
-        timeText.text = $"{score:0.00} Sekunden";
         highscoreText.text = $"Aktueller Rekord: {highscore:0.00} Sekunden";
     }
 

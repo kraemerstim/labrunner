@@ -1,13 +1,21 @@
-﻿namespace DefaultNamespace
+﻿using MazeGenerator.Labyrinth;
+
+namespace DefaultNamespace
 {
     public static class SceneData
     {
+        //Labtype
+        public static LabyrinthBase.LabType LabType = LabyrinthBase.LabType.Remember;
+
         //Maze-Generation
-        public static int size = 4;
-        public static bool useRandomSeed = true;
-        public static int seed = 124;
+        public static int Size = 5;
+        public static bool UseRandomSeed = true;
+        public static int Seed = 124;
 
         //loadingScreen
-        public static float secondsPassed = 0;
+        public static float SecondsPassed = 0;
+
+        //endScreen
+        public static bool Win = false;
     }
 }

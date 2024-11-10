@@ -5,24 +5,11 @@ namespace MazeGenerator.Labyrinth
 {
     public class SquareLabyrinth : LabyrinthBase
     {
-        private MazeHexagon _startHexagon;
-        private MazeHexagon _endHexagon;
-
         public SquareLabyrinth(LabOptions options) : base(options)
         {
         }
 
-        public MazeHexagon GetStartHexagon()
-        {
-            return _startHexagon;
-        }
-
-        public MazeHexagon GetEndHexagon()
-        {
-            return _endHexagon;
-        }
-
-        public void Generate()
+        public override void Generate()
         {
             InitLabyrinth(_options.Size);
             GenerateMaze();
@@ -35,53 +22,28 @@ namespace MazeGenerator.Labyrinth
             {
                 for (var x = 0; x < size; x++)
                 {
-                    var tempHexagon = new MazeHexagon(x, y);
-                    if (x > 0)
-                    {
-                        var target = _hexagons[(x - 1, y)];
-                        CreateTransition(tempHexagon, x % 2 == 1 ? 4 : 5, target);
-                    }
-
-                    if (y > 0)
-                    {
-                        var target = _hexagons[(x, y - 1)];
-                        CreateTransition(tempHexagon, 3, target);
-                        if (x % 2 == 0)
-                        {
-                            if (x > 0)
-                            {
-                                target = _hexagons[(x - 1, y - 1)];
-                                CreateTransition(tempHexagon, 4, target);
-                            }
-
-                            if (x < size - 1)
-                            {
-                                target = _hexagons[(x + 1, y - 1)];
-                                CreateTransition(tempHexagon, 2, target);
-                            }
-                        }
-                    }
-
-                    _hexagons.Add((x, y), tempHexagon);
+                    CreateHexagon(x, y);
                 }
             }
         }
 
-        protected override void GenerateMaze()
+        protected void GenerateMaze()
         {
             //generate transition set
             var transitionList = LabUtil.ShuffleList(_transitions.ToList(), _random);
             foreach (var transition in transitionList)
             {
                 transition.Activated = false;
-                transition.Activated = !transition.Node1.CheckConnectivityTo(transition.Node2);
+                transition.Activated = !transition.Node1.CheckPathTo(transition.Node2);
             }
 
             var hexagonList = LabUtil.ShuffleList(_hexagons.Values.ToList(), _random);
 
-            foreach (var hexagon in hexagonList.Where(hexagon => hexagon.GetHexagonOpenings() < 2))
+            foreach (var hexagon in hexagonList.Where(hexagon =>
+                         hexagon.GetHexagonOpenings(
+                             mazeTransition => mazeTransition != null && mazeTransition.Activated) < 2))
             {
-                hexagon.OpenRandomOpening(_random);
+                hexagon.OpenRandomOpening(_random, transition => transition is {Activated: false});
             }
         }
 

@@ -20,7 +20,7 @@ public class Player : MonoBehaviour
 
 
     public event EventHandler<NewHexEventArgs> OnMoveToNewHex;
-    public event EventHandler OnWin;
+    public event EventHandler OnGoalTouched;
 
     private void Update()
     {
@@ -46,7 +46,7 @@ public class Player : MonoBehaviour
             goalLayerMask);
 
         if (overlapBox.Length <= 0) return;
-        OnWin?.Invoke(this, EventArgs.Empty);
+        OnGoalTouched?.Invoke(this, EventArgs.Empty);
     }
 
     private void HandleMovement()
