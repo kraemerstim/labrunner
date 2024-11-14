@@ -31,9 +31,11 @@ public class Player : MonoBehaviour
 
     private void HandleNewHexagonTrigger()
     {
-        var overlapBox = Physics.OverlapBox(transform.position, transform.localScale * 2, Quaternion.identity,
+        var overlapBox = Physics.OverlapBox(transform.position, transform.localScale / 2, Quaternion.identity,
             triggerLayerMask);
-
+        
+        if (overlapBox.Length > 1)
+            Debug.LogError($"Number of overlapped boxes {overlapBox.Length}");
         if (overlapBox.Length <= 0 || overlapBox[0] == _currentCollider) return;
         _currentCollider = overlapBox[0];
         OnMoveToNewHex?.Invoke(this,
@@ -42,7 +44,7 @@ public class Player : MonoBehaviour
 
     private void HandleGoal()
     {
-        var overlapBox = Physics.OverlapBox(transform.position, transform.localScale * 2, Quaternion.identity,
+        var overlapBox = Physics.OverlapBox(transform.position, transform.localScale / 2, Quaternion.identity,
             goalLayerMask);
 
         if (overlapBox.Length <= 0) return;
