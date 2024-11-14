@@ -93,6 +93,7 @@ namespace LabManager
 
         private void ResetGame()
         {
+            _hexagonsToPlace.Clear();
             foreach (var tile in _labyrinth.Values)
             {
                 Destroy(tile.gameObject);
