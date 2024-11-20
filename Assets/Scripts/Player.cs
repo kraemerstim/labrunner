@@ -17,23 +17,39 @@ public class Player : MonoBehaviour
     private const float PLAYER_RADIUS = .7f;
     private const float PLAYER_HEIGHT = 2f;
     private Collider _currentCollider;
+    public bool IsMovementAllowed { get; set; }
 
+    public static Player Instance { get; private set; }
 
     public event EventHandler<NewHexEventArgs> OnMoveToNewHex;
     public event EventHandler OnGoalTouched;
 
+    private void Awake()
+    {
+        if (Instance != null)
+        {
+            Debug.LogError("There is more than one instance of player!");
+        }
+
+        Instance = this;
+        IsMovementAllowed = true;
+    }
+
     private void Update()
     {
-        HandleMovement();
-        HandleNewHexagonTrigger();
-        HandleGoal();
+        if (IsMovementAllowed)
+        {
+            HandleMovement();
+            HandleNewHexagonTrigger();
+            HandleGoal();
+        }
     }
 
     private void HandleNewHexagonTrigger()
     {
-        var overlapBox = Physics.OverlapBox(transform.position, transform.localScale / 2, Quaternion.identity,
-            triggerLayerMask);
-        
+        var overlapBox = Physics.OverlapCapsule(transform.position, transform.position + Vector3.up * PLAYER_HEIGHT,
+            PLAYER_RADIUS, triggerLayerMask);
+
         if (overlapBox.Length > 1)
             Debug.LogError($"Number of overlapped boxes {overlapBox.Length}");
         if (overlapBox.Length <= 0 || overlapBox[0] == _currentCollider) return;
@@ -44,10 +60,11 @@ public class Player : MonoBehaviour
 
     private void HandleGoal()
     {
-        var overlapBox = Physics.OverlapBox(transform.position, transform.localScale / 2, Quaternion.identity,
-            goalLayerMask);
+        var overlapBox = Physics.OverlapCapsule(transform.position, transform.position + Vector3.up * PLAYER_HEIGHT,
+            PLAYER_RADIUS, goalLayerMask);
 
         if (overlapBox.Length <= 0) return;
+
         OnGoalTouched?.Invoke(this, EventArgs.Empty);
     }
 

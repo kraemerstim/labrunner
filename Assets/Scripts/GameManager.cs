@@ -7,7 +7,6 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
-    [SerializeField] private Player player;
     [SerializeField] private TextMeshProUGUI timerText;
     [SerializeField] private SquareLabManager squareLabManagerPrefab;
     [SerializeField] private RememberLabManager rememberLabManagerPrefab;
@@ -32,17 +31,6 @@ public class GameManager : MonoBehaviour
             SceneData.Win = args.Win;
             SceneManager.LoadScene(2);
         };
-
-        _labManager.OnGameReset += (sender, args) =>
-        {
-            _labManager.GameStart();
-            player.transform.position = _labManager.GetStartPosition();
-        };
-
-        player.OnGoalTouched += (sender, args) => _labManager.PlayerTouchedGoal();
-        player.OnMoveToNewHex += (o, args) => _labManager.PlayerMovedOnNewField(args.Hexagon);
-        _labManager.GameStart();
-        player.transform.position = _labManager.GetStartPosition();
     }
 
     void Update()

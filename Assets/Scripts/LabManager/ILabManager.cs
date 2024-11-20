@@ -1,6 +1,4 @@
 ﻿using System;
-using MazeGenerator;
-using UnityEngine;
 
 namespace LabManager
 {
@@ -12,11 +10,7 @@ namespace LabManager
         }
 
         event EventHandler<GameOverEventArgs> OnGameEnd;
-        event EventHandler OnGameReset;
-        Vector3 GetStartPosition();
-        void GameStart();
-        void PlayerMovedOnNewField(MazeHexagon hexagon);
-        void PlayerTouchedGoal();
+        void StageStart();
         float GetGameTime();
     }
 }

@@ -1,35 +1,49 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
+using Cinemachine;
 using DefaultNamespace;
 using MazeGenerator;
 using MazeGenerator.Labyrinth;
 using UnityEngine;
-using Debug = UnityEngine.Debug;
 
 namespace LabManager
 {
     public class RememberLabManager : MonoBehaviour, ILabManager
     {
-        [SerializeField] private MazeTile mazeTilePrefab;
+        private enum GameState
+        {
+            PreGame,
+            Game,
+            Outro
+        }
 
+        [SerializeField] HexManager hexManager;
+        private CinemachineVirtualCamera _mainCamera;
+        private Player _player;
         public event EventHandler<ILabManager.GameOverEventArgs> OnGameEnd;
-        public event EventHandler OnGameReset;
 
-        private Dictionary<(int x, int y), MazeTile> _labyrinth;
         private Rememberinth _labyrinthModel;
-        private float _hexPlacementTimer;
-        private Queue<MazeHexagon> _hexagonsToPlace;
-        private Stopwatch _stopwatch;
         private Queue<MazeHexagon> _path;
+        private List<MazeHexagon> _alreadyTakenPath;
 
-        private float _gameTimer = 0f;
+        private float _gameTimer;
+        private float _outroTimer;
 
+        private bool _hasWon;
+
+        private int _level;
         private int _stage;
+        private GameState _gameState;
 
         public void Awake()
         {
             _stage = 1;
+            _level = 1;
+            _gameState = GameState.PreGame;
+        }
+
+        private void GenerateLabyrinth()
+        {
             var isGenerated = false;
 
             while (!isGenerated)
@@ -50,58 +64,81 @@ namespace LabManager
                     }
                 }
             }
-
-            _labyrinth = new Dictionary<(int x, int y), MazeTile>();
-            _hexagonsToPlace = new Queue<MazeHexagon>();
         }
 
-        public void PlayerMovedOnNewField(MazeHexagon hexagon)
+        private void Start()
         {
-            Debug.Log($"PlayerMovedOnNewField {hexagon.MazePosition}");
-            if (_path.Dequeue() != hexagon)
+            _mainCamera = (CinemachineVirtualCamera) CinemachineCore.Instance.GetVirtualCamera(0);
+            _player = Player.Instance;
+            _player.OnMoveToNewHex += PlayerMovedOnNewField;
+            _player.OnGoalTouched += PlayerTouchedGoal;
+            GenerateLabyrinth();
+            StageStart();
+        }
+
+        public void PlayerMovedOnNewField(object sender, Player.NewHexEventArgs newHexEventArgs)
+        {
+            var hexagon = newHexEventArgs.Hexagon;
+
+            if (_alreadyTakenPath.Contains(hexagon)) return;
+            if (!ValidateStep(hexagon))
             {
-                OnGameEnd?.Invoke(this, new ILabManager.GameOverEventArgs {Win = false});
+                InitiateGameEnd(false);
                 return;
             }
 
-            foreach (var mazeTransition in hexagon.MazeTransitions)
-            {
-                if (mazeTransition is not {Activated: true}) continue;
-
-                var hexagonToAdd = mazeTransition.GetOtherNode(hexagon);
-                if (_hexagonsToPlace.Contains(hexagonToAdd) ||
-                    _labyrinth.ContainsKey((hexagonToAdd.MazePosition.x, hexagonToAdd.MazePosition.y))) continue;
-                _hexagonsToPlace.Enqueue(hexagonToAdd);
-            }
+            hexManager.CreateAdjacentHexes(hexagon);
         }
 
-        public void PlayerTouchedGoal()
+        private bool ValidateStep(MazeHexagon hexagon)
+        {
+            if (_alreadyTakenPath.Contains(hexagon)) return true;
+            if (_path.TryDequeue(out var queueHexagon) && queueHexagon == hexagon)
+            {
+                _alreadyTakenPath.Add(hexagon);
+                hexManager.ColorTile(hexagon, MazeTile.HighlightType.Green);
+                return true;
+            }
+
+            hexManager.ColorTile(hexagon, MazeTile.HighlightType.Red);
+            return false;
+        }
+
+        public void PlayerTouchedGoal(object sender, EventArgs eventArgs)
         {
             switch (_stage)
             {
                 case 3:
-                    OnGameEnd?.Invoke(this, new ILabManager.GameOverEventArgs {Win = true});
-                    break;
+                    _gameState = GameState.Outro;
+                    InitiateGameEnd(true);
+                    return;
                 default:
-                    _labyrinthModel.OnStageChange(_stage);
+                    PrepareNextStage();
                     break;
             }
-
-            _stage++;
-            ResetGame();
         }
 
-        private void ResetGame()
+        private void PrepareNextStage()
         {
-            _hexagonsToPlace.Clear();
-            foreach (var tile in _labyrinth.Values)
-            {
-                Destroy(tile.gameObject);
-            }
+            _stage++;
+            _labyrinthModel.PrepareStage(_stage);
+            Clear();
+            StageStart();
+        }
 
-            _labyrinth.Clear();
+        private void Clear()
+        {
+            hexManager.Clear();
+            _path?.Clear();
+            _alreadyTakenPath?.Clear();
+        }
 
-            OnGameReset?.Invoke(this, EventArgs.Empty);
+        private void InitiateGameEnd(bool hasWon)
+        {
+            _gameState = GameState.Outro;
+            _hasWon = hasWon;
+            _player.IsMovementAllowed = false;
+            _outroTimer = 0;
         }
 
         public float GetGameTime()
@@ -109,11 +146,14 @@ namespace LabManager
             return _gameTimer;
         }
 
-        public void GameStart()
+        public void StageStart()
         {
             _path = new Queue<MazeHexagon>(_labyrinthModel.GetPath());
+            _alreadyTakenPath = new List<MazeHexagon>();
             var mazeHexagon = _labyrinthModel.GetStartHexagon();
-            CreateMazeTile(mazeHexagon);
+            _player.transform.position = GetStartPosition();
+            _gameState = GameState.Game;
+            hexManager.CreateMazeTile(mazeHexagon);
         }
 
         public Vector3 GetStartPosition()
@@ -124,40 +164,23 @@ namespace LabManager
 
         private void Update()
         {
-            if (IsGameTimerRunning())
+            switch (_gameState)
             {
-                _gameTimer += Time.deltaTime;
+                case GameState.Game:
+                    _gameTimer += Time.deltaTime;
+                    break;
+                case GameState.Outro:
+                {
+                    _outroTimer += Time.deltaTime;
+                    _mainCamera.m_Lens.FieldOfView = Mathf.Lerp(42, 120, _outroTimer / 3);
+                    if (_outroTimer >= 3)
+                    {
+                        OnGameEnd?.Invoke(this, new ILabManager.GameOverEventArgs {Win = _hasWon});
+                    }
+
+                    break;
+                }
             }
-
-            if (_hexagonsToPlace.Count == 0)
-            {
-                return;
-            }
-
-            _hexPlacementTimer += Time.deltaTime;
-            if (_hexPlacementTimer <= LabUtil.InitTimeMax)
-            {
-                return;
-            }
-
-            var hexagonToPlace = _hexagonsToPlace.Dequeue();
-            CreateMazeTile(hexagonToPlace);
-            _hexPlacementTimer = 0;
-        }
-
-        private bool IsGameTimerRunning()
-        {
-            return true;
-        }
-
-        private void CreateMazeTile(MazeHexagon hexagon)
-        {
-            var mazePositionX = hexagon.MazePosition.x;
-            var mazePositionY = hexagon.MazePosition.y;
-            var mazeTile = Instantiate(mazeTilePrefab,
-                LabUtil.CalculateTilePosition(mazePositionX, mazePositionY), Quaternion.identity);
-            mazeTile.SetMazeHexagon(hexagon, _labyrinthModel.GetEndHexagon().Equals(hexagon));
-            _labyrinth.Add((mazePositionX, mazePositionY), mazeTile);
         }
     }
 }

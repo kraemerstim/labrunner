@@ -16,14 +16,14 @@ namespace MazeGenerator.Labyrinth
             InitLabyrinth(_options.Size);
         }
 
-        public void OnStageChange(int stage)
+        public void PrepareStage(int stage)
         {
             switch (stage)
             {
-                case 1:
+                case 2:
                     GenerateMaze();
                     break;
-                case 2:
+                case 3:
                     SetAllTransitionsActive();
                     break;
             }
@@ -59,6 +59,7 @@ namespace MazeGenerator.Labyrinth
                 tempHexagon = newHexagon;
             }
 
+            tempHexagon.IsGoal = true;
             _endHexagon = tempHexagon;
             CreateSurroundingHexagons(2);
         }

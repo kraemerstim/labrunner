@@ -9,6 +9,7 @@ namespace MazeGenerator
     {
         public readonly MazeTransition[] MazeTransitions;
         public (int x, int y) MazePosition { get; private set; }
+        public bool IsGoal { get; set; }
 
         public MazeHexagon(int x, int y)
         {

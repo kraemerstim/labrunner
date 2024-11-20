@@ -1260,18 +1260,6 @@ MonoBehaviour:
   timerText: {fileID: 178428942}
   restartButton: {fileID: 368517866}
   menuButton: {fileID: 871826228}
---- !u!114 &953875958 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 1217256893642179117, guid: d19592e34a188ee4f9bed795b5aa00a1,
-    type: 3}
-  m_PrefabInstance: {fileID: 1594412112}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bab1fa8f74739d5459188e60effdfe34, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!4 &953875959 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2030991160478663744, guid: d19592e34a188ee4f9bed795b5aa00a1,
@@ -1351,7 +1339,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa934652e944c2642a3cc3bc0bcfe413, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player: {fileID: 953875958}
   timerText: {fileID: 178428942}
   squareLabManagerPrefab: {fileID: 98564953046381939, guid: 65be53f60b637b445a2bb95873e2bcf0,
     type: 3}

@@ -3,6 +3,13 @@ using UnityEngine;
 
 public class MazeTile : MonoBehaviour
 {
+    public enum HighlightType
+    {
+        None,
+        Red,
+        Green
+    }
+
     [SerializeField] private GameObject door0;
     [SerializeField] private GameObject door1;
     [SerializeField] private GameObject door2;
@@ -10,10 +17,12 @@ public class MazeTile : MonoBehaviour
     [SerializeField] private GameObject door4;
     [SerializeField] private GameObject door5;
     [SerializeField] private GameObject goal;
+    [SerializeField] private GameObject visualRed;
+    [SerializeField] private GameObject visualGreen;
 
     private MazeHexagon _hexagon;
 
-    public void SetMazeHexagon(MazeHexagon hexagon, bool isFinish)
+    public void SetMazeHexagon(MazeHexagon hexagon)
     {
         _hexagon = hexagon;
         var i = 0;
@@ -31,7 +40,7 @@ public class MazeTile : MonoBehaviour
             i++;
         }
 
-        goal.SetActive(isFinish);
+        goal.SetActive(hexagon.IsGoal);
     }
 
     public MazeHexagon GetHexagon()
@@ -61,5 +70,25 @@ public class MazeTile : MonoBehaviour
     private void Hide(int doorNo)
     {
         GetDoor(doorNo).SetActive(false);
+    }
+
+    public void Highlight(HighlightType type)
+    {
+        var highlightGreen = false;
+        var highlightRed = false;
+        switch (type)
+        {
+            case HighlightType.Red:
+                highlightRed = true;
+                break;
+            case HighlightType.Green:
+                highlightGreen = true;
+                break;
+            case HighlightType.None:
+                break;
+        }
+
+        visualRed.SetActive(highlightRed);
+        visualGreen.SetActive(highlightGreen);
     }
 }

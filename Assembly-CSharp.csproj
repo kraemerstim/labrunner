@@ -46,22 +46,22 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Scripts\MainMenuUI.cs" />
+    <Compile Include="Assets\Scripts\MazeGenerator\Parts\MazeTransition.cs" />
     <Compile Include="Assets\Scripts\SceneData.cs" />
+    <Compile Include="Assets\Scripts\MazeGenerator\Parts\MazeHexagon.cs" />
     <Compile Include="Assets\Scripts\LabManager\RememberLabManager.cs" />
     <Compile Include="Assets\Scripts\LabManager\ILabManager.cs" />
-    <Compile Include="Assets\Scripts\MazeGenerator\MazeHexagon.cs" />
     <Compile Include="Assets\Scripts\MazeGenerator\Labyrinth\Remeberinth.cs" />
     <Compile Include="Assets\Scripts\EndScreenUI.cs" />
     <Compile Include="Assets\Scripts\MazeGenerator\Labyrinth\LabyrinthBase.cs" />
-    <Compile Include="Assets\Scripts\MazeGenerator\MazeTransition.cs" />
     <Compile Include="Assets\Scripts\MazeTile.cs" />
     <Compile Include="Assets\Scripts\MazeGenerator\Labyrinth\SquareLabyrinth.cs" />
     <Compile Include="Assets\Scripts\Player.cs" />
     <Compile Include="Assets\Scripts\GameManager.cs" />
-    <Compile Include="Assets\Scripts\MazeGenerator\Program.cs" />
     <Compile Include="Assets\PlayerInputActions.cs" />
     <Compile Include="Assets\Scripts\MainGameUI.cs" />
     <Compile Include="Assets\Scripts\GameInput.cs" />
+    <Compile Include="Assets\Scripts\LabManager\HexManager.cs" />
     <Compile Include="Assets\Scripts\LabManager\SquareLabManager.cs" />
     <Compile Include="Assets\Scripts\MazeGenerator\Labyrinth\LabUtil.cs" />
     <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />

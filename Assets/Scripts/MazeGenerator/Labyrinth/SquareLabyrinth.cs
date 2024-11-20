@@ -75,6 +75,7 @@ namespace MazeGenerator.Labyrinth
             }
 
             _endHexagon = hexesChecked.Last();
+            _endHexagon.IsGoal = true;
         }
     }
 }

@@ -13,7 +13,6 @@ namespace LabManager
         [SerializeField] private MazeTile mazeTilePrefab;
 
         public event EventHandler<ILabManager.GameOverEventArgs> OnGameEnd;
-        public event EventHandler OnGameReset;
 
         private Dictionary<(int x, int y), MazeTile> _labyrinth;
         private LabyrinthBase _labyrinthModel;
@@ -56,7 +55,7 @@ namespace LabManager
             return _gameTimer;
         }
 
-        public void GameStart()
+        public void StageStart()
         {
             var mazeHexagon = _labyrinthModel.GetStartHexagon();
             CreateMazeTile(mazeHexagon);
@@ -93,7 +92,7 @@ namespace LabManager
             var mazePositionY = hexagon.MazePosition.y;
             var mazeTile = Instantiate(mazeTilePrefab,
                 LabUtil.CalculateTilePosition(mazePositionX, mazePositionY), Quaternion.identity);
-            mazeTile.SetMazeHexagon(hexagon, _labyrinthModel.GetEndHexagon().Equals(hexagon));
+            mazeTile.SetMazeHexagon(hexagon);
             _labyrinth.Add((mazePositionX, mazePositionY), mazeTile);
         }
     }
